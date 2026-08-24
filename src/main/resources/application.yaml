@@ -1,3 +1,12 @@
 spring:
   application:
     name: TaskManagementSystem
+  datasource:
+    url: jdbc:mysql://localhost:3306/demo
+    username: root
+    password: rik31
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
