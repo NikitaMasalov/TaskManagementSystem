@@ -2,6 +2,9 @@ package com.example.TaskManagementSystem.entity;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "tasks")
 public class Task {
@@ -15,6 +18,10 @@ public class Task {
     private String description;
     @Column(nullable = false)
     private String status;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "task_id")
+    private Set<Task> tasks = new HashSet<Task>();
 
     //Конструктор
 
@@ -57,4 +64,6 @@ public class Task {
     public void setStatus(String status) {
         this.status = status;
     }
+
+
 }
