@@ -26,15 +26,23 @@ public class TaskController  {
         return  taskService.createTask(task.getTitle(), task.getDescription(), task.getStatus());
     }
 
-    @GetMapping
+   /* @GetMapping
     public List<Task> getAllTask(){
         return taskService.getAllTask();
     }
-
+*/
     @GetMapping("/{id}")
     public Task getTaskById(@PathVariable Long id) throws ReflectiveOperationException {
         return taskService.getTaskById(id)
                 .orElseThrow(()-> new RuntimeException("Task Not Found"));
+    }
+
+    @GetMapping
+    public List<Task> getTask(@RequestParam(required = false)Long userId) {
+        if (userId != null){
+            return taskService.findByUserId(userId);
+        }
+        return taskService.getAllTask();
     }
 
     @DeleteMapping("/{id}")

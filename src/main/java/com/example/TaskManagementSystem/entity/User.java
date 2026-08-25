@@ -22,8 +22,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "task_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Task> tasks = new HashSet<Task>();
 
     public User(){}

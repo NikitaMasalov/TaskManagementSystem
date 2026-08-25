@@ -19,9 +19,9 @@ public class Task {
     @Column(nullable = false)
     private String status;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "task_id")
-    private Set<Task> tasks = new HashSet<Task>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     //Конструктор
 
