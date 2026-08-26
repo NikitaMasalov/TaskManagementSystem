@@ -32,6 +32,8 @@ public class Task {
         this.status = status;
     }
 
+
+
     //Геттеры и сеттеры
     public long getId() {
         return id;
@@ -65,5 +67,11 @@ public class Task {
         this.status = status;
     }
 
+    public User getUser() {
+        return user;
+    }
 
+    public void setUser(User userId) {
+        this.user = userId;
+    }
 }

@@ -1,31 +1,39 @@
 package com.example.TaskManagementSystem.controller;
 
 
+import com.example.TaskManagementSystem.dto.TaskRequest;
+import com.example.TaskManagementSystem.dto.TaskResponse;
 import com.example.TaskManagementSystem.entity.Task;
+import com.example.TaskManagementSystem.mapper.TaskMapper;
 import com.example.TaskManagementSystem.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/task")
 public class TaskController  {
     private final TaskService taskService;
+    private final TaskMapper taskMapper;
 
     @Autowired
-    public TaskController (TaskService taskService){
+    public TaskController (TaskService taskService, TaskMapper taskMapper){
         this.taskService = taskService;
-
+        this.taskMapper = taskMapper;
+    }
+    @PostMapping
+    public TaskResponse createTask(@RequestBody TaskRequest request){
+        Task task = taskService.createTask(request);
+        return taskMapper.toResponse(task);
     }
 
+    /*
     @PostMapping
     public Task createTask(@RequestBody Task task) {
         return  taskService.createTask(task.getTitle(), task.getDescription(), task.getStatus());
     }
-
+*/
    /* @GetMapping
     public List<Task> getAllTask(){
         return taskService.getAllTask();
