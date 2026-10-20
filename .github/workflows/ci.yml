@@ -1,0 +1,35 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build and run tests with H2
+        run: bash mvnw --batch-mode --no-transfer-progress verify
+      - name: Build runtime container
+        run: docker build -t task-management-system:ci .
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/surefire-reports/
+      - name: Upload executable JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: task-management-system
+          path: target/TaskManagementSystem-0.0.1-SNAPSHOT.jar

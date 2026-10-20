@@ -1,45 +1,12 @@
 package com.example.TaskManagementSystem.dto;
 
-public class TaskRequest {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
-    private String title;
-    private String description;
-    private String status;
-    private Long userId;
-
-    public TaskRequest(){
-
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+public record TaskRequest(
+        @NotBlank @Size(max = 50) String title,
+        @NotBlank @Size(max = 255) String description,
+        @NotBlank @Size(max = 255) String status,
+        @Positive Long userId) {
 }

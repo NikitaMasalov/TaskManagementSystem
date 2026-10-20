@@ -1,66 +1,43 @@
 package com.example.TaskManagementSystem.controller;
 
-
 import com.example.TaskManagementSystem.dto.TaskRequest;
 import com.example.TaskManagementSystem.dto.TaskResponse;
-import com.example.TaskManagementSystem.entity.Task;
-import com.example.TaskManagementSystem.mapper.TaskMapper;
 import com.example.TaskManagementSystem.service.TaskService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/task")
-public class TaskController  {
-    private final TaskService taskService;
-    private final TaskMapper taskMapper;
-
-    @Autowired
-    public TaskController (TaskService taskService, TaskMapper taskMapper){
-        this.taskService = taskService;
-        this.taskMapper = taskMapper;
-    }
-    @PostMapping
-    public TaskResponse createTask(@RequestBody TaskRequest request){
-        Task task = taskService.createTask(request);
-        return taskMapper.toResponse(task);
-    }
-
-    /*
-    @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return  taskService.createTask(task.getTitle(), task.getDescription(), task.getStatus());
-    }
-*/
-   /* @GetMapping
-    public List<Task> getAllTask(){
-        return taskService.getAllTask();
-    }
-*/
-    @GetMapping("/{id}")
-    public Task getTaskById(@PathVariable Long id) throws ReflectiveOperationException {
-        return taskService.getTaskById(id)
-                .orElseThrow(()-> new RuntimeException("Task Not Found"));
-    }
+public class TaskController {
+    private final TaskService tasks;
+    public TaskController(TaskService tasks) { this.tasks = tasks; }
 
     @GetMapping
-    public List<Task> getTask(@RequestParam(required = false)Long userId) {
-        if (userId != null){
-            return taskService.findByUserId(userId);
-        }
-        return taskService.getAllTask();
+    public List<TaskResponse> list(@RequestParam(required = false) @Positive Long userId) {
+        return tasks.findAll(userId);
+    }
+
+    @GetMapping("/{id}")
+    public TaskResponse get(@PathVariable @Positive Long id) { return tasks.findById(id); }
+
+    @PostMapping
+    public ResponseEntity<TaskResponse> create(@Valid @RequestBody TaskRequest request) {
+        TaskResponse response = tasks.create(request);
+        return ResponseEntity.created(URI.create("/task/" + response.id())).body(response);
+    }
+
+    @RequestMapping(path = "/{id}", method = {RequestMethod.PUT, RequestMethod.POST})
+    public TaskResponse update(@PathVariable @Positive Long id, @Valid @RequestBody TaskRequest request) {
+        return tasks.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void  deleteTask(@PathVariable Long id){
-        taskService.deleteTask(id);
+    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
+        tasks.delete(id);
+        return ResponseEntity.noContent().build();
     }
-
-    @PostMapping("/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task updateTask) {
-        return taskService.updateTask(id, updateTask.getTitle(),updateTask.getDescription(),updateTask.getStatus());
-    }
-
 }

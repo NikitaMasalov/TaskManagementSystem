@@ -2,11 +2,18 @@ spring:
   application:
     name: TaskManagementSystem
   datasource:
-    url: jdbc:mysql://localhost:3306/demo
-    username: root
-    password: rik31
-
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/demo}
+    username: ${SPRING_DATASOURCE_USERNAME:taskapp}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  security:
+    user:
+      name: ${SPRING_SECURITY_USER_NAME:admin}
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
+server:
+  error:
+    include-message: never
+    include-stacktrace: never

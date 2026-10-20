@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:taskmanagement;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  security:
+    user:
+      name: admin
+      password: test-admin-password
+  jpa:
+    hibernate:
+      ddl-auto: update

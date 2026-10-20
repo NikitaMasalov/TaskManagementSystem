@@ -3,60 +3,67 @@ package com.example.TaskManagementSystem.service;
 import com.example.TaskManagementSystem.dto.TaskRequest;
 import com.example.TaskManagementSystem.dto.TaskResponse;
 import com.example.TaskManagementSystem.entity.Task;
+import com.example.TaskManagementSystem.entity.User;
+import com.example.TaskManagementSystem.exception.ResourceNotFoundException;
 import com.example.TaskManagementSystem.mapper.TaskMapper;
 import com.example.TaskManagementSystem.repository.TaskRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.TaskManagementSystem.repository.UserRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class TaskService {
-    private final TaskRepository taskRepository;
-    private final TaskMapper taskMapper;
+    private final TaskRepository tasks;
+    private final UserRepository users;
+    private final TaskMapper mapper;
 
-    @Autowired
-    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper){
-        this.taskRepository = taskRepository;
-        this.taskMapper = taskMapper;
+    public TaskService(TaskRepository tasks, UserRepository users, TaskMapper mapper) {
+        this.tasks = tasks;
+        this.users = users;
+        this.mapper = mapper;
     }
 
-    //POST Создание
- /*   public Task createTask(String title, String description, String status){
-        Task task = new Task(title, description, status);
-        return taskRepository.save(task);
-    }
-*/
-    public Task createTask(TaskRequest request){
-        Task task = taskMapper.fromCreateRequest(request);
-        return taskRepository.save(task);
+    public List<TaskResponse> findAll(Long userId) {
+        if (userId != null) findUser(userId);
+        List<Task> result = userId == null ? tasks.findAll(Sort.by("id")) : tasks.findByUser_IdOrderByIdAsc(userId);
+        return result.stream().map(mapper::toResponse).toList();
     }
 
+    public TaskResponse findById(Long id) { return mapper.toResponse(findTask(id)); }
 
-    //GET - выводы
-    public List<Task> getAllTask(){
-        return taskRepository.findAll();
-    }
-    public Optional<Task> getTaskById(Long id) {
-        return taskRepository.findById(id);
-    }
-
-    public List<Task> findByUserId(Long userId){
-        return taskRepository.findByUser_Id(userId);
+    @Transactional
+    public TaskResponse create(TaskRequest request) {
+        Task task = new Task();
+        apply(task, request);
+        return mapper.toResponse(tasks.save(task));
     }
 
-    public void deleteTask(Long id){
-        taskRepository.deleteById(id);
+    @Transactional
+    public TaskResponse update(Long id, TaskRequest request) {
+        Task task = findTask(id);
+        apply(task, request);
+        return mapper.toResponse(task);
     }
 
-    public Task updateTask(Long id, String title, String description, String status){
-        Task task = taskRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Task Not Found"));
-        task.setTitle(title);
-        task.setDescription(description);
-        task.setStatus(status);
-        return taskRepository.save(task);
+    @Transactional
+    public void delete(Long id) { tasks.delete(findTask(id)); }
+
+    private Task findTask(Long id) {
+        return tasks.findById(id).orElseThrow(() -> new ResourceNotFoundException("Task", id));
     }
 
+    private User findUser(Long id) {
+        return users.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
+    }
+
+    private void apply(Task task, TaskRequest request) {
+        User user = request.userId() == null ? null : findUser(request.userId());
+        task.setTitle(request.title());
+        task.setDescription(request.description());
+        task.setStatus(request.status());
+        task.setUser(user);
+    }
 }
